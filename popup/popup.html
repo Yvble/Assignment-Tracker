@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All In One Assignment Tracker</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <h1>All In One Assignment Tracker</h1>
+        <p>Live Page Detection</p>
+        <div class="divider"></div>
+      </header>
+
+      <section class="status-card">
+        <p id="statusText" class="status scanning">Scanning current page...</p>
+      </section>
+
+      <section class="results-card">
+        <p id="resultSummary" class="result-summary hidden"></p>
+        <ul id="assignmentList" class="assignment-list"></ul>
+        <p id="savedMessage" class="saved hidden">Saved to dashboard</p>
+      </section>
+
+      <footer class="footer">
+        <button id="openDashboardBtn" class="btn" type="button">Open Full Dashboard</button>
+      </footer>
+    </main>
+
+    <script src="../lib/lms-detector.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

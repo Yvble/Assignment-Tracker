@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assignment Calendar</title>
+    <link rel="stylesheet" href="calendar.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <h1>All In One Assignment Tracker</h1>
+        <p class="hero-subtitle">Stay on top of deadlines with one clean dashboard.</p>
+        <div class="hero-divider"></div>
+      </header>
+
+      <section class="summary-card">
+        <div class="summary-top">
+          <h2>Dashboard Summary</h2>
+          <div class="topbar-actions">
+            <button id="scanToggleBtn" class="btn secondary" type="button">Scanning: On</button>
+            <button id="openTabBtn" class="btn secondary" type="button">Open in Tab</button>
+          </div>
+        </div>
+
+        <div class="summary-body">
+          <div id="donutChart" class="donut" aria-label="Assignment status chart">
+            <div class="donut-inner">
+              <div id="donutTotal" class="donut-total">0</div>
+              <div class="donut-label">Total</div>
+            </div>
+          </div>
+
+          <ul class="legend">
+            <li class="legend-item">
+              <span class="legend-dot overdue"></span>
+              <span>Overdue</span>
+              <strong id="overdueCount">0</strong>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot week"></span>
+              <span>Due This Week</span>
+              <strong id="dueWeekCount">0</strong>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot future"></span>
+              <span>Future</span>
+              <strong id="futureCount">0</strong>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="calendar-shell">
+        <div class="calendar-header">
+          <button id="prevMonthBtn" class="btn secondary" type="button">Previous</button>
+          <h2 id="monthLabel"></h2>
+          <button id="nextMonthBtn" class="btn secondary" type="button">Next</button>
+        </div>
+        <div class="weekdays" id="weekdayRow"></div>
+        <div class="grid" id="calendarGrid"></div>
+      </section>
+
+      <section class="details">
+        <h3 id="detailsLabel">Assignments</h3>
+        <ul id="assignmentList" class="assignment-list"></ul>
+        <p id="emptyState" class="empty hidden">No assignments for this selection.</p>
+      </section>
+    </main>
+
+    <script src="calendar.js"></script>
+  </body>
+</html>

@@ -1,0 +1,150 @@
+:root {
+  --bg: #f4f8fe;
+  --panel: #ffffff;
+  --text: #14253d;
+  --muted: #60748d;
+  --border: #d8e2f0;
+  --ok: #2f9965;
+  --warn: #d0881d;
+  --error: #cf4c4c;
+  --btn: #1f69cf;
+  --btn-hover: #1a58ad;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 390px;
+  min-height: 520px;
+  background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+  color: var(--text);
+  font: 14px/1.45 "Segoe UI", Tahoma, sans-serif;
+}
+
+.app {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.hero {
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.hero p {
+  margin: 4px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.divider {
+  width: 120px;
+  height: 2px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, transparent 0%, #a6c0e3 50%, transparent 100%);
+}
+
+.status-card,
+.results-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status.scanning {
+  color: #355d9a;
+}
+
+.status.success {
+  color: var(--ok);
+}
+
+.status.warning {
+  color: var(--warn);
+}
+
+.status.info {
+  color: #476d97;
+}
+
+.status.error {
+  color: var(--error);
+}
+
+.result-summary {
+  margin: 0 0 8px;
+  color: #233a56;
+  font-weight: 600;
+}
+
+.assignment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.assignment-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 8px;
+}
+
+.assignment-title {
+  margin: 0;
+  font-weight: 600;
+  color: #153253;
+}
+
+.assignment-due {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.saved {
+  margin: 10px 0 0;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: 2px;
+}
+
+.btn {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--btn);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+}
+
+.hidden {
+  display: none;
+}
