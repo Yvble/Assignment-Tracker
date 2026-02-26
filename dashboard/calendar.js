@@ -103,12 +103,17 @@ function weekBounds(baseDate) {
 
 function statusBucket(iso) {
   const nowDate = new Date();
-  const now = nowDate.getTime();
   const dueTime = new Date(iso).getTime();
   if (Number.isNaN(dueTime)) {
     return "none";
   }
-  if (dueTime < now) {
+
+  const todayStart = new Date(nowDate);
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(nowDate);
+  todayEnd.setHours(23, 59, 59, 999);
+
+  if (dueTime >= todayStart.getTime() && dueTime <= todayEnd.getTime()) {
     return "overdue";
   }
 
