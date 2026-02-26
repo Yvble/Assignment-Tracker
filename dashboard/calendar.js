@@ -14,7 +14,6 @@ const emptyStateEl = document.getElementById("emptyState");
 const prevMonthBtn = document.getElementById("prevMonthBtn");
 const nextMonthBtn = document.getElementById("nextMonthBtn");
 const openTabBtn = document.getElementById("openTabBtn");
-const scanToggleBtn = document.getElementById("scanToggleBtn");
 const donutChartEl = document.getElementById("donutChart");
 const donutTotalEl = document.getElementById("donutTotal");
 const overdueCountEl = document.getElementById("overdueCount");
@@ -23,7 +22,6 @@ const futureCountEl = document.getElementById("futureCount");
 
 let allAssignments = [];
 let selectedDateKey = null;
-let scanningEnabled = true;
 const viewDate = new Date();
 viewDate.setDate(1);
 
@@ -362,13 +360,6 @@ function detectInTab() {
   });
 }
 
-function applyScanButtonState() {
-  if (!scanToggleBtn) {
-    return;
-  }
-  scanToggleBtn.textContent = `Scanning: ${scanningEnabled ? "On" : "Off"}`;
-}
-
 async function toggleAssignmentCompleted(id, completed) {
   allAssignments = allAssignments.map((item) =>
     item.id === id
@@ -398,9 +389,6 @@ async function rerenderForSelection() {
 async function init() {
   renderWeekdays();
   allAssignments = sortAssignments((await storageGet(STORAGE_KEY)) || []);
-  const scanStored = await storageGet(SCAN_ENABLED_KEY);
-  scanningEnabled = scanStored !== false;
-  applyScanButtonState();
   selectedDateKey = toDateKey(new Date());
   renderDonutSummary(activeAssignments());
 
@@ -424,14 +412,6 @@ async function init() {
   if (openTabBtn) {
     openTabBtn.addEventListener("click", () => {
       chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/calendar.html") });
-    });
-  }
-
-  if (scanToggleBtn) {
-    scanToggleBtn.addEventListener("click", async () => {
-      scanningEnabled = !scanningEnabled;
-      applyScanButtonState();
-      await storageSet({ [SCAN_ENABLED_KEY]: scanningEnabled });
     });
   }
 
@@ -494,10 +474,6 @@ async function init() {
       );
     }
 
-    if (changes[SCAN_ENABLED_KEY]) {
-      scanningEnabled = changes[SCAN_ENABLED_KEY].newValue !== false;
-      applyScanButtonState();
-    }
   });
 }
 

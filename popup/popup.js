@@ -3,6 +3,7 @@ const resultSummaryEl = document.getElementById("resultSummary");
 const assignmentListEl = document.getElementById("assignmentList");
 const savedMessageEl = document.getElementById("savedMessage");
 const openDashboardBtn = document.getElementById("openDashboardBtn");
+const sendDueDatesBtn = document.getElementById("sendDueDatesBtn");
 
 function setStatus(text, type) {
   statusTextEl.textContent = text;
@@ -23,9 +24,8 @@ function formatDue(iso) {
   return dt.toLocaleString();
 }
 
-function renderResults(assignments) {
+function renderResults(assignments, saved) {
   clearResults();
-
   resultSummaryEl.classList.remove("hidden");
   resultSummaryEl.textContent = `Assignments Found: ${assignments.length}`;
 
@@ -46,7 +46,9 @@ function renderResults(assignments) {
     assignmentListEl.appendChild(li);
   }
 
-  savedMessageEl.classList.remove("hidden");
+  if (saved) {
+    savedMessageEl.classList.remove("hidden");
+  }
 }
 
 function queryActiveTab() {
@@ -57,15 +59,19 @@ function queryActiveTab() {
   });
 }
 
-function sendScanMessage(tabId) {
+function sendScanMessage(tabId, saveToStorage) {
   return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(tabId, { type: "scanAssignmentsNow" }, (response) => {
+    chrome.tabs.sendMessage(
+      tabId,
+      { type: saveToStorage ? "scanAssignmentsSave" : "scanAssignmentsPreview" },
+      (response) => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError);
         return;
       }
       resolve(response);
-    });
+      }
+    );
   });
 }
 
@@ -81,57 +87,65 @@ function injectContentScripts(tabId) {
   });
 }
 
-async function runDetectionFlow() {
-  setStatus("🔍 Scanning current page...", "scanning");
+async function runDetectionFlow(saveToStorage) {
+  setStatus("Scanning current page...", "scanning");
   clearResults();
 
   const tab = await queryActiveTab();
   if (!tab || !tab.id || !tab.url) {
-    setStatus("⚠️ This page is not supported", "warning");
+    setStatus("This page is not supported", "warning");
     return;
   }
 
   if (!window.LMSDetector.isLikelyLmsUrl(tab.url)) {
-    setStatus("⚠️ This page is not supported", "warning");
+    setStatus("This page is not supported", "warning");
     return;
   }
 
-  let response = null;
+  let response;
   try {
-    response = await sendScanMessage(tab.id);
+    response = await sendScanMessage(tab.id, saveToStorage);
   } catch (error) {
     try {
       await injectContentScripts(tab.id);
-      response = await sendScanMessage(tab.id);
+      response = await sendScanMessage(tab.id, saveToStorage);
     } catch (injectError) {
-      setStatus("⚠️ This page is not supported", "warning");
+      setStatus("This page is not supported", "warning");
       return;
     }
   }
 
   if (!response || !response.supported) {
-    setStatus("⚠️ This page is not supported", "warning");
+    setStatus("This page is not supported", "warning");
     return;
   }
 
   const found = Array.isArray(response.assignments) ? response.assignments : [];
   if (!found.length) {
-    setStatus("ℹ️ No assignments found", "info");
+    setStatus("No assignments found", "info");
     return;
   }
 
-  setStatus(
-    `✅ ${found.length} assignment${found.length === 1 ? "" : "s"} detected`,
-    "success"
-  );
-  renderResults(found);
+  if (saveToStorage) {
+    setStatus(`${found.length} assignment${found.length === 1 ? "" : "s"} saved`, "success");
+  } else {
+    setStatus(`${found.length} assignment${found.length === 1 ? "" : "s"} detected`, "success");
+  }
+  renderResults(found, saveToStorage);
 }
 
 openDashboardBtn.addEventListener("click", () => {
   chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/calendar.html") });
 });
 
-runDetectionFlow().catch(() => {
-  setStatus("⚠️ This page is not supported", "warning");
+sendDueDatesBtn.addEventListener("click", () => {
+  runDetectionFlow(true).catch(() => {
+    setStatus("This page is not supported", "warning");
+    clearResults();
+  });
+});
+
+runDetectionFlow(false).catch(() => {
+  setStatus("This page is not supported", "warning");
   clearResults();
 });

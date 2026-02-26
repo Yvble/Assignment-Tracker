@@ -65,6 +65,10 @@ body {
   font-weight: 600;
 }
 
+.action-btn {
+  margin-top: 10px;
+}
+
 .status.scanning {
   color: #355d9a;
 }

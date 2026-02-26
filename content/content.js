@@ -2,7 +2,6 @@
   const STORAGE_KEY = "assignments";
   const SCAN_ENABLED_KEY = "scanEnabled";
   const MAX_ASSIGNMENTS = 1000;
-  let scanTimer = null;
 
   function storageGet(key) {
     return new Promise((resolve, reject) => {
@@ -97,14 +96,10 @@
   async function scanAndStore(options = {}) {
     const attempts = options.attempts || 1;
     const waitMs = options.waitMs || 0;
+    const save = options.save === true;
 
     // Skip non-LMS pages entirely to minimize overhead and avoid irrelevant data.
     if (!window.LMSDetector.isLikelyLmsUrl(window.location.href)) {
-      return [];
-    }
-
-    const scanEnabled = await storageGet(SCAN_ENABLED_KEY);
-    if (scanEnabled === false) {
       return [];
     }
 
@@ -114,35 +109,24 @@
       return [];
     }
 
-    const existing = (await storageGet(STORAGE_KEY)) || [];
-    const merged = mergeAssignments(existing, filtered);
-    await storageSet({ [STORAGE_KEY]: merged });
+    if (save) {
+      const scanEnabled = await storageGet(SCAN_ENABLED_KEY);
+      if (scanEnabled === false) {
+        return filtered;
+      }
+      const existing = (await storageGet(STORAGE_KEY)) || [];
+      const merged = mergeAssignments(existing, filtered);
+      await storageSet({ [STORAGE_KEY]: merged });
+    }
+
     return filtered;
   }
 
-  function scheduleScan(delayMs) {
-    if (scanTimer) {
-      clearTimeout(scanTimer);
-    }
-    scanTimer = setTimeout(() => {
-      scanAndStore().catch(() => {});
-    }, delayMs);
-  }
-
-  function startObserver() {
-    // Supports single-page LMS apps where assignment lists update without full page reloads.
-    const observer = new MutationObserver(() => {
-      scheduleScan(1200);
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
-  }
-
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (!message || message.type !== "scanAssignmentsNow") {
+    if (
+      !message ||
+      (message.type !== "scanAssignmentsPreview" && message.type !== "scanAssignmentsSave")
+    ) {
       return false;
     }
 
@@ -155,7 +139,11 @@
     }
 
     // SPA pages like McGraw Connect often render assignment cards asynchronously.
-    scanAndStore({ attempts: 12, waitMs: 350 })
+    scanAndStore({
+      attempts: 12,
+      waitMs: 350,
+      save: message.type === "scanAssignmentsSave"
+    })
       .then((assignments) => {
         sendResponse({
           supported: true,
@@ -171,16 +159,4 @@
 
     return true;
   });
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-      scheduleScan(300);
-      scheduleScan(2500);
-      startObserver();
-    });
-  } else {
-    scheduleScan(300);
-    scheduleScan(2500);
-    startObserver();
-  }
 })();
