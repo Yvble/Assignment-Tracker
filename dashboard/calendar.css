@@ -199,6 +199,18 @@ body {
   background: var(--future);
 }
 
+#overdueCount {
+  color: var(--overdue);
+}
+
+#dueWeekCount {
+  color: var(--week);
+}
+
+#futureCount {
+  color: var(--future);
+}
+
 .calendar-shell {
   max-height: none;
   overflow: visible;
